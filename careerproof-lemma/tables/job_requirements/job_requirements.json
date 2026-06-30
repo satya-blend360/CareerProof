@@ -1,0 +1,76 @@
+{
+  "name": "job_requirements",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "requirement_text",
+      "max_length": 2000,
+      "required": true
+    },
+    {
+      "type": "ENUM",
+      "name": "requirement_type",
+      "default": "skill",
+      "required": true,
+      "options": [
+        "skill",
+        "tool",
+        "experience",
+        "education",
+        "responsibility",
+        "domain",
+        "logistics",
+        "other"
+      ]
+    },
+    {
+      "type": "ENUM",
+      "name": "importance",
+      "default": "medium",
+      "required": true,
+      "options": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    {
+      "type": "ENUM",
+      "name": "required_or_preferred",
+      "default": "required",
+      "required": true,
+      "options": [
+        "required",
+        "preferred",
+        "unknown"
+      ]
+    },
+    {
+      "type": "TEXT",
+      "name": "skill",
+      "max_length": 160,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "seniority_signal",
+      "max_length": 1000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "parsed_reason",
+      "max_length": 2000,
+      "required": false
+    }
+  ],
+  "config": {}
+}

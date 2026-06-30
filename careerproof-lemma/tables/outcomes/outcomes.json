@@ -1,0 +1,56 @@
+{
+  "name": "outcomes",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "outcome",
+      "default": "unknown",
+      "required": true,
+      "options": [
+        "unknown",
+        "rejected",
+        "interview",
+        "offer",
+        "ghosted",
+        "withdrew"
+      ]
+    },
+    {
+      "type": "DATE",
+      "name": "outcome_date",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "reason_if_known",
+      "max_length": 3000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "stage_reached",
+      "max_length": 160,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "lessons",
+      "max_length": 4000,
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "pattern_tags",
+      "required": false
+    }
+  ],
+  "config": {}
+}

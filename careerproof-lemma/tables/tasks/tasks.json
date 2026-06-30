@@ -1,0 +1,69 @@
+{
+  "name": "tasks",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "task_title",
+      "max_length": 240,
+      "required": true
+    },
+    {
+      "type": "ENUM",
+      "name": "task_type",
+      "default": "gap_sprint",
+      "required": true,
+      "options": [
+        "gap_sprint",
+        "resume",
+        "message",
+        "follow_up",
+        "interview_prep",
+        "research",
+        "other"
+      ]
+    },
+    {
+      "type": "DATETIME",
+      "name": "due_at",
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "priority",
+      "default": "medium",
+      "required": true,
+      "options": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    {
+      "type": "ENUM",
+      "name": "status",
+      "default": "open",
+      "required": true,
+      "options": [
+        "open",
+        "in_progress",
+        "done",
+        "skipped"
+      ]
+    },
+    {
+      "type": "TEXT",
+      "name": "notes",
+      "max_length": 3000,
+      "required": false
+    }
+  ],
+  "config": {}
+}

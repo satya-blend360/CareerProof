@@ -1,0 +1,69 @@
+{
+  "name": "recruiter_messages",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "recipient_type",
+      "default": "recruiter",
+      "required": true,
+      "options": [
+        "recruiter",
+        "hiring_manager",
+        "employee_referral",
+        "alumni",
+        "other"
+      ]
+    },
+    {
+      "type": "ENUM",
+      "name": "channel",
+      "default": "linkedin",
+      "required": true,
+      "options": [
+        "linkedin",
+        "email",
+        "referral_form",
+        "other"
+      ]
+    },
+    {
+      "type": "TEXT",
+      "name": "subject",
+      "max_length": 240,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "message_body",
+      "max_length": 4000,
+      "required": true
+    },
+    {
+      "type": "TEXT",
+      "name": "proof_hook",
+      "max_length": 1200,
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "status",
+      "default": "draft",
+      "required": true,
+      "options": [
+        "draft",
+        "approved",
+        "sent",
+        "archived"
+      ]
+    }
+  ],
+  "config": {}
+}

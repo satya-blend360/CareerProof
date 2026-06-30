@@ -1,0 +1,261 @@
+{
+  "name": "new-application-strategy-workflow",
+  "description": "Parse a job description and produce a proof-backed CareerProof application strategy.",
+  "start": {
+    "type": "MANUAL"
+  },
+  "nodes": [
+    {
+      "id": "intake",
+      "type": "FORM",
+      "label": "New Job Intake",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "application_id": {
+              "title": "Application ID",
+              "type": "string"
+            },
+            "company": {
+              "title": "Company",
+              "type": "string"
+            },
+            "role_title": {
+              "title": "Role title",
+              "type": "string"
+            },
+            "job_url": {
+              "title": "Job URL",
+              "type": "string"
+            },
+            "job_description": {
+              "title": "Job description",
+              "type": "string"
+            },
+            "resume_context": {
+              "title": "Resume or profile context",
+              "type": "string"
+            }
+          },
+          "required": [
+            "application_id",
+            "job_description"
+          ]
+        }
+      }
+    },
+    {
+      "id": "parse_job",
+      "type": "FUNCTION",
+      "label": "Parse Job Requirements",
+      "config": {
+        "input_mapping": {
+          "application_id": {
+            "value": "intake.application_id",
+            "type": "expression"
+          },
+          "company": {
+            "value": "intake.company",
+            "type": "expression",
+            "optional": true
+          },
+          "role_title": {
+            "value": "intake.role_title",
+            "type": "expression",
+            "optional": true
+          },
+          "job_url": {
+            "value": "intake.job_url",
+            "type": "expression",
+            "optional": true
+          },
+          "job_description": {
+            "value": "intake.job_description",
+            "type": "expression"
+          },
+          "resume_context": {
+            "value": "intake.resume_context",
+            "type": "expression",
+            "optional": true
+          }
+        },
+        "function_name": "parse_job_requirements"
+      }
+    },
+    {
+      "id": "fit_strategy",
+      "type": "AGENT",
+      "label": "Decide Strategy",
+      "config": {
+        "input_mapping": {
+          "application_id": {
+            "value": "intake.application_id",
+            "type": "expression"
+          },
+          "job_description": {
+            "value": "intake.job_description",
+            "type": "expression"
+          },
+          "resume_context": {
+            "value": "intake.resume_context",
+            "type": "expression"
+          },
+          "parse_result": {
+            "value": "parse_job.summary",
+            "type": "expression",
+            "optional": true
+          }
+        },
+        "agent_name": "fit-strategy-agent"
+      }
+    },
+    {
+      "id": "gap_sprint",
+      "type": "AGENT",
+      "label": "Create Gap Sprint",
+      "config": {
+        "input_mapping": {
+          "application_id": {
+            "value": "intake.application_id",
+            "type": "expression"
+          },
+          "job_description": {
+            "value": "intake.job_description",
+            "type": "expression"
+          },
+          "strategy_result": {
+            "value": "fit_strategy.answer",
+            "type": "expression"
+          }
+        },
+        "agent_name": "gap-sprint-agent"
+      }
+    },
+    {
+      "id": "resume_delta",
+      "type": "AGENT",
+      "label": "Create Resume Deltas",
+      "config": {
+        "input_mapping": {
+          "application_id": {
+            "value": "intake.application_id",
+            "type": "expression"
+          },
+          "job_description": {
+            "value": "intake.job_description",
+            "type": "expression"
+          },
+          "resume_context": {
+            "value": "intake.resume_context",
+            "type": "expression"
+          },
+          "strategy_result": {
+            "value": "fit_strategy.answer",
+            "type": "expression"
+          },
+          "sprint_result": {
+            "value": "gap_sprint.answer",
+            "type": "expression"
+          }
+        },
+        "agent_name": "resume-delta-agent"
+      }
+    },
+    {
+      "id": "message",
+      "type": "AGENT",
+      "label": "Draft Recruiter Message",
+      "config": {
+        "input_mapping": {
+          "application_id": {
+            "value": "intake.application_id",
+            "type": "expression"
+          },
+          "job_description": {
+            "value": "intake.job_description",
+            "type": "expression"
+          },
+          "strategy_result": {
+            "value": "fit_strategy.answer",
+            "type": "expression"
+          },
+          "resume_delta_result": {
+            "value": "resume_delta.answer",
+            "type": "expression"
+          }
+        },
+        "agent_name": "recruiter-message-agent"
+      }
+    },
+    {
+      "id": "interview",
+      "type": "AGENT",
+      "label": "Prepare Interview Defense",
+      "config": {
+        "input_mapping": {
+          "application_id": {
+            "value": "intake.application_id",
+            "type": "expression"
+          },
+          "job_description": {
+            "value": "intake.job_description",
+            "type": "expression"
+          },
+          "resume_context": {
+            "value": "intake.resume_context",
+            "type": "expression"
+          },
+          "strategy_result": {
+            "value": "fit_strategy.answer",
+            "type": "expression"
+          }
+        },
+        "agent_name": "interview-defense-agent"
+      }
+    },
+    {
+      "id": "end",
+      "type": "END",
+      "label": "Done"
+    }
+  ],
+  "edges": [
+    {
+      "source": "intake",
+      "id": "e1",
+      "target": "parse_job"
+    },
+    {
+      "source": "parse_job",
+      "id": "e2",
+      "target": "fit_strategy"
+    },
+    {
+      "source": "fit_strategy",
+      "id": "e3",
+      "target": "gap_sprint"
+    },
+    {
+      "source": "gap_sprint",
+      "id": "e4",
+      "target": "resume_delta"
+    },
+    {
+      "source": "resume_delta",
+      "id": "e5",
+      "target": "message"
+    },
+    {
+      "source": "message",
+      "id": "e6",
+      "target": "interview"
+    },
+    {
+      "source": "interview",
+      "id": "e7",
+      "target": "end"
+    }
+  ],
+  "visibility": "POD"
+}

@@ -1,0 +1,72 @@
+{
+  "name": "student_profile",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "TEXT",
+      "name": "full_name",
+      "max_length": 160,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "email",
+      "max_length": 240,
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "target_roles",
+      "required": false
+    },
+    {
+      "type": "INTEGER",
+      "name": "graduation_year",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "degree",
+      "max_length": 240,
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "location_preferences",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "work_authorization",
+      "max_length": 160,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "portfolio_url",
+      "max_length": 500,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "github_url",
+      "max_length": 500,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "linkedin_url",
+      "max_length": 500,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "summary",
+      "max_length": 4000,
+      "required": false
+    }
+  ],
+  "config": {}
+}

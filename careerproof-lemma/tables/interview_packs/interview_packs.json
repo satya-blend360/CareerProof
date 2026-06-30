@@ -1,0 +1,45 @@
+{
+  "name": "interview_packs",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "likely_questions",
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "best_stories",
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "weak_areas",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "defense_notes",
+      "max_length": 8000,
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "technical_refresh_topics",
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "questions_to_ask_interviewer",
+      "required": false
+    }
+  ],
+  "config": {}
+}

@@ -1,0 +1,113 @@
+{
+  "name": "applications",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "TEXT",
+      "name": "company",
+      "max_length": 180,
+      "required": true
+    },
+    {
+      "type": "TEXT",
+      "name": "role_title",
+      "max_length": 240,
+      "required": true
+    },
+    {
+      "type": "ENUM",
+      "name": "status",
+      "default": "analyzing",
+      "required": true,
+      "options": [
+        "saved",
+        "analyzing",
+        "fix_first",
+        "ready_to_apply",
+        "applied",
+        "referral_requested",
+        "interview",
+        "offer",
+        "rejected",
+        "ghosted",
+        "skipped"
+      ]
+    },
+    {
+      "type": "TEXT",
+      "name": "source",
+      "max_length": 160,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "job_url",
+      "max_length": 800,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "location",
+      "max_length": 240,
+      "required": false
+    },
+    {
+      "type": "DATE",
+      "name": "deadline",
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "decision",
+      "required": false,
+      "options": [
+        "apply",
+        "fix_first",
+        "skip",
+        "referral_first"
+      ]
+    },
+    {
+      "type": "INTEGER",
+      "name": "fit_score",
+      "required": false
+    },
+    {
+      "type": "INTEGER",
+      "name": "credibility_score",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "next_action",
+      "max_length": 3000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "job_description",
+      "max_length": 20000,
+      "required": false
+    },
+    {
+      "type": "DATE",
+      "name": "applied_at",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "outcome",
+      "max_length": 1000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "notes",
+      "max_length": 6000,
+      "required": false
+    }
+  ],
+  "config": {}
+}

@@ -1,0 +1,67 @@
+{
+  "name": "evidence_matches",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "UUID",
+      "name": "requirement_id",
+      "required": false
+    },
+    {
+      "type": "UUID",
+      "name": "evidence_item_id",
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "match_strength",
+      "default": "weak",
+      "required": true,
+      "options": [
+        "strong",
+        "medium",
+        "weak",
+        "none"
+      ]
+    },
+    {
+      "type": "ENUM",
+      "name": "proof_quality",
+      "default": "weak",
+      "required": true,
+      "options": [
+        "verified",
+        "credible",
+        "weak",
+        "missing"
+      ]
+    },
+    {
+      "type": "ENUM",
+      "name": "gap_type",
+      "required": false,
+      "options": [
+        "missing_skill",
+        "weak_artifact",
+        "missing_metric",
+        "missing_deployment",
+        "missing_story",
+        "none"
+      ]
+    },
+    {
+      "type": "TEXT",
+      "name": "explanation",
+      "max_length": 3000,
+      "required": false
+    }
+  ],
+  "config": {}
+}

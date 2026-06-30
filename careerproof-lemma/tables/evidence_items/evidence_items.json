@@ -1,0 +1,95 @@
+{
+  "name": "evidence_items",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "TEXT",
+      "name": "title",
+      "max_length": 240,
+      "required": true
+    },
+    {
+      "type": "ENUM",
+      "name": "type",
+      "default": "project",
+      "required": true,
+      "options": [
+        "project",
+        "internship",
+        "coursework",
+        "hackathon",
+        "certification",
+        "achievement",
+        "opensource",
+        "portfolio",
+        "other"
+      ]
+    },
+    {
+      "type": "TEXT",
+      "name": "description",
+      "max_length": 6000,
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "skills_demonstrated",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "proof_url",
+      "max_length": 500,
+      "required": false
+    },
+    {
+      "type": "FILE_PATH",
+      "name": "file_path",
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "metrics",
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "strength",
+      "default": "medium",
+      "required": true,
+      "options": [
+        "strong",
+        "medium",
+        "weak",
+        "missing"
+      ]
+    },
+    {
+      "type": "TEXT",
+      "name": "weaknesses",
+      "max_length": 3000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "story_problem",
+      "max_length": 3000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "story_action",
+      "max_length": 3000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "story_result",
+      "max_length": 3000,
+      "required": false
+    }
+  ],
+  "config": {}
+}

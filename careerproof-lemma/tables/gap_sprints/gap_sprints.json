@@ -1,0 +1,54 @@
+{
+  "name": "gap_sprints",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "gap_summary",
+      "max_length": 3000,
+      "required": true
+    },
+    {
+      "type": "INTEGER",
+      "name": "estimated_hours",
+      "required": false
+    },
+    {
+      "type": "JSON",
+      "name": "sprint_steps",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "artifact_to_create",
+      "max_length": 2000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "resume_bullet_after_completion",
+      "max_length": 1000,
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "status",
+      "default": "planned",
+      "required": true,
+      "options": [
+        "planned",
+        "in_progress",
+        "done",
+        "skipped"
+      ]
+    }
+  ],
+  "config": {}
+}

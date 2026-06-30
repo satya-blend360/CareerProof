@@ -1,0 +1,20 @@
+# Local smoke-test output
+payloads/.smoke-run.json
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+payloads/.*-smoke-run.json

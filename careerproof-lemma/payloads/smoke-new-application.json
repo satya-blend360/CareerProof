@@ -1,0 +1,8 @@
+{
+  "application_id": "REPLACE_WITH_CREATED_APPLICATION_ID",
+  "company": "Codex Smoke Test Co",
+  "role_title": "Backend Intern Smoke Test",
+  "job_url": "https://example.com/backend-intern-smoke-test",
+  "job_description": "Backend internship working with Python APIs, PostgreSQL, REST endpoints, Git, debugging, and cloud deployment. Candidates should have built at least one API project, used SQL, written tests, and documented their work.",
+  "resume_context": "Student has Campus Helpdesk API in Python/FastAPI, basic REST endpoints, GitHub documentation, and an AI notes summarizer. SQL proof and deployed cloud demo are weak."
+}

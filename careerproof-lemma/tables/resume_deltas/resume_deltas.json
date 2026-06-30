@@ -1,0 +1,55 @@
+{
+  "name": "resume_deltas",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "UUID",
+      "name": "application_id",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "section",
+      "max_length": 120,
+      "required": true
+    },
+    {
+      "type": "TEXT",
+      "name": "original_text",
+      "max_length": 3000,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "suggested_text",
+      "max_length": 3000,
+      "required": true
+    },
+    {
+      "type": "TEXT",
+      "name": "reason",
+      "max_length": 3000,
+      "required": false
+    },
+    {
+      "type": "UUID",
+      "name": "evidence_item_id",
+      "required": false
+    },
+    {
+      "type": "ENUM",
+      "name": "truth_status",
+      "default": "supported",
+      "required": true,
+      "options": [
+        "supported",
+        "needs_artifact",
+        "unsupported",
+        "do_not_claim"
+      ]
+    }
+  ],
+  "config": {}
+}

@@ -1,0 +1,64 @@
+{
+  "name": "skills",
+  "primary_key_column": "id",
+  "enable_rls": true,
+  "visibility": "POD",
+  "columns": [
+    {
+      "type": "TEXT",
+      "name": "skill_name",
+      "max_length": 160,
+      "required": true
+    },
+    {
+      "type": "ENUM",
+      "name": "category",
+      "default": "technical",
+      "required": true,
+      "options": [
+        "technical",
+        "tool",
+        "domain",
+        "soft",
+        "language",
+        "other"
+      ]
+    },
+    {
+      "type": "ENUM",
+      "name": "strength",
+      "default": "medium",
+      "required": true,
+      "options": [
+        "strong",
+        "medium",
+        "weak",
+        "missing"
+      ]
+    },
+    {
+      "type": "INTEGER",
+      "name": "evidence_count",
+      "default": 0,
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "best_evidence_item",
+      "max_length": 240,
+      "required": false
+    },
+    {
+      "type": "DATE",
+      "name": "last_used_at",
+      "required": false
+    },
+    {
+      "type": "TEXT",
+      "name": "notes",
+      "max_length": 3000,
+      "required": false
+    }
+  ],
+  "config": {}
+}
