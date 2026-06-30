@@ -1,0 +1,65 @@
+name: Deploy CareerProof to Lemma
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "careerproof-app/**"
+      - ".github/workflows/deploy-lemma.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: careerproof-lemma-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and deploy app
+    runs-on: ubuntu-latest
+    env:
+      LEMMA_TOKEN: ${{ secrets.LEMMA_TOKEN }}
+      LEMMA_BASE_URL: https://api.lemma.work
+      LEMMA_SERVER: https://api.lemma.work
+      VITE_LEMMA_API_URL: https://api.lemma.work
+      VITE_LEMMA_AUTH_URL: https://lemma.work/auth
+      VITE_LEMMA_POD_ID: CareerProof
+      LEMMA_CLI_INSTALL_COMMAND: ${{ secrets.LEMMA_CLI_INSTALL_COMMAND }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: careerproof-app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: careerproof-app
+        run: npm ci
+
+      - name: Build app
+        working-directory: careerproof-app
+        run: npm run build
+
+      - name: Install Lemma CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v lemma >/dev/null 2>&1; then
+            lemma --version || true
+            exit 0
+          fi
+          if [ -z "$LEMMA_CLI_INSTALL_COMMAND" ]; then
+            echo "Missing LEMMA_CLI_INSTALL_COMMAND secret. Add the official Lemma CLI install command as a GitHub Actions secret."
+            exit 1
+          fi
+          bash -lc "$LEMMA_CLI_INSTALL_COMMAND"
+          lemma --version || true
+
+      - name: Deploy to Lemma
+        working-directory: careerproof-app
+        run: lemma apps deploy careerproof --dist-dir dist --pod CareerProof --yes
