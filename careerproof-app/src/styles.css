@@ -362,6 +362,216 @@ h3 {
   box-shadow: var(--shadow-soft);
 }
 
+
+.judge-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.35fr) minmax(250px, 0.95fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.judge-panel,
+.readiness-panel,
+.differentiator-panel {
+  min-height: 100%;
+}
+
+.walkthrough-list {
+  display: grid;
+  gap: 10px;
+}
+
+.walkthrough-step {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 4px 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.walkthrough-step:hover {
+  border-color: var(--teal);
+  box-shadow: 0 8px 18px rgba(8, 118, 109, 0.11);
+  transform: translateY(-1px);
+}
+
+.walkthrough-step > span {
+  grid-row: 1 / span 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--teal-soft);
+  color: var(--teal-strong);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.walkthrough-step strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.walkthrough-step p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.readiness-meter {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.readiness-meter > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.readiness-meter strong {
+  color: var(--teal-strong);
+  font-size: 31px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.readiness-meter span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.meter-track {
+  height: 9px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.meter-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal), var(--blue));
+}
+
+.checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 18px;
+}
+
+.check-item {
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.check-item svg {
+  margin-top: 2px;
+  color: var(--line-strong);
+}
+
+.check-item.done svg {
+  color: var(--teal);
+}
+
+.check-item strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.check-item span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.differentiator-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.differentiator-stack article {
+  padding-left: 12px;
+  border-left: 3px solid var(--teal);
+}
+
+.differentiator-stack article:nth-child(2) {
+  border-left-color: var(--blue);
+}
+
+.differentiator-stack article:nth-child(3) {
+  border-left-color: var(--amber);
+}
+
+.differentiator-stack strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.differentiator-stack p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.priority-box {
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+
+.priority-box > span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.priority-box ul {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.priority-box li {
+  color: #384758;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.priority-box li::marker {
+  color: var(--teal);
+}
+
 .section-header {
   display: flex;
   align-items: center;
@@ -706,6 +916,7 @@ textarea {
   }
 
   .metrics-grid,
+  .judge-grid,
   .two-column,
   .outputs-grid,
   .requirements-grid,
@@ -713,11 +924,17 @@ textarea {
   .defense-result,
   .diagnosis-grid,
   .readiness-card,
+  .checklist-grid,
   .form-grid {
     grid-template-columns: 1fr;
   }
 
   .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .readiness-meter > div:first-child {
     align-items: flex-start;
     flex-direction: column;
   }

@@ -554,11 +554,37 @@ function App() {
     return 'My strongest relevant proof is ' + text(story, 'title', 'a project') + '. ' + result + ' ' + limitation
   }, [evidenceQuery.records, credibilitySignals])
 
+  const proofGapCount = proofMatrixRows.filter((row) => ['weak', 'missing'].includes(row.proofQuality)).length
+  const outputChecklist = useMemo(() => {
+    return [
+      { label: 'Student profile', complete: Boolean(profileRecordId), detail: profileRecordId ? 'Context saved' : 'Save profile context' },
+      { label: 'Parsed requirements', complete: relatedRequirements.length > 0, detail: relatedRequirements.length + ' requirements' },
+      { label: 'Proof matches', complete: relatedMatches.length > 0, detail: relatedMatches.length + ' matches' },
+      { label: 'Proof matrix', complete: proofMatrixRows.length > 0, detail: proofGapCount + ' gaps' },
+      { label: 'Gap sprint', complete: relatedSprints.length > 0, detail: relatedSprints[0] ? text(relatedSprints[0], 'gap_summary') : 'No sprint yet' },
+      { label: 'Resume deltas', complete: relatedDeltas.length > 0, detail: relatedDeltas.length + ' changes' },
+      { label: 'Recruiter message', complete: relatedMessages.length > 0, detail: relatedMessages[0] ? labelize(text(relatedMessages[0], 'channel')) : 'No draft yet' },
+      { label: 'Interview pack', complete: relatedInterviews.length > 0, detail: relatedInterviews[0] ? asList(value(relatedInterviews[0], 'likely_questions')).length + ' questions' : 'No pack yet' },
+      { label: 'Tasks', complete: relatedTasks.length > 0, detail: relatedTasks.length + ' actions' },
+      { label: 'Outcome loop', complete: relatedOutcomes.length > 0, detail: relatedOutcomes[0] ? labelize(text(relatedOutcomes[0], 'outcome')) : 'Log after applying' },
+    ]
+  }, [profileRecordId, relatedRequirements, relatedMatches, proofMatrixRows, proofGapCount, relatedSprints, relatedDeltas, relatedMessages, relatedInterviews, relatedTasks, relatedOutcomes])
+  const outputCompleteCount = outputChecklist.filter((item) => item.complete).length
+  const outputCompletion = Math.round((outputCompleteCount / outputChecklist.length) * 100)
+  const priorityMoves = useMemo(() => {
+    const moves = [
+      credibilitySignals.highGaps[0] ? 'Close high-signal proof: ' + text(credibilitySignals.highGaps[0].requirement, 'requirement_text') : '',
+      relatedSprints[0] ? 'Ship artifact: ' + text(relatedSprints[0], 'artifact_to_create', text(relatedSprints[0], 'gap_summary')) : '',
+      relatedMessages[0] ? 'Use outreach hook: ' + text(relatedMessages[0], 'proof_hook', 'proof-backed message') : '',
+      relatedInterviews[0] ? 'Practice: ' + (asList(value(relatedInterviews[0], 'likely_questions'))[0] || 'first interview question') : '',
+    ].filter(Boolean)
+    return uniqueList(moves).slice(0, 4)
+  }, [credibilitySignals, relatedSprints, relatedMessages, relatedInterviews])
+
   const fixFirstCount = applications.filter((row) => text(row, 'decision') === 'fix_first' || text(row, 'status') === 'fix_first').length
   const readyCount = applications.filter((row) => ['apply', 'ready_to_apply', 'applied', 'interview'].includes(text(row, 'decision')) || ['ready_to_apply', 'applied', 'interview'].includes(text(row, 'status'))).length
   const openTaskCount = tasksQuery.records.filter((row) => text(row, 'status', 'open') !== 'done').length
   const highRequirementCount = relatedRequirements.filter((row) => text(row, 'importance') === 'high').length
-  const proofGapCount = proofMatrixRows.filter((row) => ['weak', 'missing'].includes(row.proofQuality)).length
   const isSubmitting = createApplication.isSubmitting || strategyWorkflow.isStarting
   const isProfileSubmitting = createProfile.isSubmitting || updateProfile.isSubmitting
   const isOutcomeSubmitting = createOutcome.isSubmitting || updateApplication.isSubmitting
@@ -951,6 +977,7 @@ function App() {
         <nav className="nav-list" aria-label="CareerProof sections">
           <a href="#dashboard"><Gauge size={17} />Dashboard</a>
           <a href="#profile"><UserRound size={17} />Profile</a>
+          <a href="#judge"><PlayCircle size={17} />Judge mode</a>
           <a href="#analyze"><Sparkles size={17} />Analyze</a>
           <a href="#ai-coach"><WandSparkles size={17} />AI coach</a>
           <a href="#requirements"><BarChart3 size={17} />Proof matrix</a>
@@ -999,6 +1026,81 @@ function App() {
           <Metric icon={<ClipboardList size={19} />} label="Open tasks" valueText={String(openTaskCount)} />
         </section>
 
+        <section className="judge-grid" id="judge">
+          <section className="panel judge-panel">
+            <SectionHeader icon={<PlayCircle size={18} />} title="Judge walkthrough" />
+            <div className="walkthrough-list">
+              <a href="#dashboard" className="walkthrough-step">
+                <span>1</span>
+                <strong>Load demo</strong>
+                <p>Create a complete proof-backed application in one click.</p>
+              </a>
+              <a href="#ai-coach" className="walkthrough-step">
+                <span>2</span>
+                <strong>AI diagnosis</strong>
+                <p>Show credibility score, weak proof, and next best move.</p>
+              </a>
+              <a href="#requirements" className="walkthrough-step">
+                <span>3</span>
+                <strong>Proof matrix</strong>
+                <p>Map requirements to evidence, gaps, and actions.</p>
+              </a>
+              <a href="#interview" className="walkthrough-step">
+                <span>4</span>
+                <strong>Defense simulator</strong>
+                <p>Score an interview answer against actual proof.</p>
+              </a>
+            </div>
+          </section>
+
+          <section className="panel readiness-panel">
+            <SectionHeader icon={<ListChecks size={18} />} title="AI output readiness" />
+            <div className="readiness-meter">
+              <div>
+                <strong>{outputCompletion}%</strong>
+                <span>{outputCompleteCount} / {outputChecklist.length} outputs ready</span>
+              </div>
+              <div className="meter-track" aria-label="AI output completion">
+                <span style={{ width: outputCompletion + '%' }} />
+              </div>
+            </div>
+            <div className="checklist-grid">
+              {outputChecklist.map((item) => (
+                <div className={'check-item ' + (item.complete ? 'done' : '')} key={item.label}>
+                  <CheckCircle2 size={16} />
+                  <div>
+                    <strong>{item.label}</strong>
+                    <span>{item.detail}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel differentiator-panel">
+            <SectionHeader icon={<ShieldCheck size={18} />} title="Why this is different" />
+            <div className="differentiator-stack">
+              <article>
+                <strong>No fake proof</strong>
+                <p>Unsupported claims become gaps, not resume fluff.</p>
+              </article>
+              <article>
+                <strong>Proof to action</strong>
+                <p>Each weak requirement becomes a concrete sprint artifact.</p>
+              </article>
+              <article>
+                <strong>Outcome learning</strong>
+                <p>Rejected, ghosted, and interview outcomes feed future strategy.</p>
+              </article>
+            </div>
+            {priorityMoves.length ? (
+              <div className="priority-box">
+                <span>Next best moves</span>
+                <ul>{priorityMoves.map((move) => <li key={move}>{move}</li>)}</ul>
+              </div>
+            ) : <EmptyState title="Run strategy or load demo to generate prioritized moves." />}
+          </section>
+        </section>
         <section className="two-column" id="profile">
           <form className="panel profile-panel" onSubmit={(event) => void submitProfile(event)}>
             <SectionHeader icon={<UserRound size={18} />} title="Student profile" />
