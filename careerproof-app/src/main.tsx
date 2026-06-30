@@ -17,10 +17,12 @@ import {
   ClipboardList,
   Database,
   Download,
+  FileWarning,
   FileText,
   Gauge,
   GraduationCap,
   Lightbulb,
+  ListChecks,
   Mail,
   MessageSquareText,
   RefreshCw,
@@ -30,6 +32,7 @@ import {
   Target,
   TimerReset,
   UserRound,
+  WandSparkles,
 } from 'lucide-react'
 import { lemmaClient } from './lemma-client'
 import './styles.css'
@@ -69,6 +72,12 @@ type OutcomeForm = {
 type InterviewResult = {
   score: number
   verdict: string
+  notes: string[]
+}
+
+type ClaimAudit = {
+  verdict: string
+  tone: string
   notes: string[]
 }
 
@@ -252,6 +261,38 @@ function scoreInterviewAnswer(answer: string, proofTerms: string[], weakAreas: s
   return { score, verdict, notes }
 }
 
+
+function proofQualityScore(quality: string): number {
+  if (quality === 'verified') return 100
+  if (quality === 'credible' || quality === 'strong') return 78
+  if (quality === 'medium') return 58
+  if (quality === 'weak') return 36
+  return 10
+}
+
+function auditClaim(claim: string, proofTerms: string[], weakAreas: string[]): ClaimAudit {
+  const claimWords = new Set(answerTerms(claim))
+  const proofHits = uniqueList(proofTerms.flatMap((term) => answerTerms(term))).filter((term) => claimWords.has(term)).slice(0, 8)
+  const weakHits = uniqueList(weakAreas.flatMap((term) => answerTerms(term))).filter((term) => claimWords.has(term)).slice(0, 6)
+  if (!claim.trim()) {
+    return { verdict: 'Paste a claim to audit', tone: 'neutral', notes: ['Use this before adding a resume bullet or interview claim.'] }
+  }
+  if (proofHits.length >= 2 && !weakHits.length) {
+    return { verdict: 'Safe to claim with proof', tone: 'good', notes: ['Supported terms: ' + proofHits.join(', '), 'Keep the wording tied to the actual project or artifact.'] }
+  }
+  if (proofHits.length && weakHits.length <= 2) {
+    return { verdict: 'Use carefully', tone: 'warn', notes: ['Supported terms: ' + proofHits.join(', '), weakHits.length ? 'Weak or unfinished terms: ' + weakHits.join(', ') : 'Add one more concrete artifact or metric.'] }
+  }
+  return { verdict: 'Do not claim yet', tone: 'muted', notes: [weakHits.length ? 'Unsupported/risky terms: ' + weakHits.join(', ') : 'No clear proof ledger match found.', 'Create a gap sprint artifact before using this claim.'] }
+}
+
+function roleReadinessLabel(score: number): string {
+  if (score >= 78) return 'Ready with proof'
+  if (score >= 58) return 'Close, fix one proof gap'
+  if (score >= 38) return 'Proof-light for this role'
+  return 'Skip or build longer-term proof'
+}
+
 function downloadTextFile(filename: string, contents: string) {
   const blob = new Blob([contents], { type: 'text/markdown;charset=utf-8' })
   const url = URL.createObjectURL(blob)
@@ -360,6 +401,8 @@ function App() {
   const [interviewQuestion, setInterviewQuestion] = useState('')
   const [interviewAnswer, setInterviewAnswer] = useState('')
   const [interviewResult, setInterviewResult] = useState<InterviewResult | null>(null)
+  const [claimDraft, setClaimDraft] = useState('')
+  const [claimAudit, setClaimAudit] = useState<ClaimAudit | null>(null)
   const [isSeedingDemo, setIsSeedingDemo] = useState(false)
 
   const applicationsQuery = useLiveRecords<Row>({ client: lemmaClient, podId, tableName: 'applications', limit: 100, reconcile: 'merge' })
@@ -487,6 +530,29 @@ function App() {
       ...proofMatrixRows.filter((row) => ['weak', 'missing'].includes(row.proofQuality)).map((row) => text(row.requirement, 'skill') || text(row.requirement, 'requirement_text')),
     ]
   }, [weakSkills, relatedInterviews, proofMatrixRows])
+  const credibilitySignals = useMemo(() => {
+    const matrixScores = proofMatrixRows.map((row) => proofQualityScore(row.proofQuality))
+    const averageProof = matrixScores.length ? Math.round(matrixScores.reduce((sum, score) => sum + score, 0) / matrixScores.length) : 0
+    const highGaps = proofMatrixRows.filter((row) => ['weak', 'missing'].includes(row.proofQuality) && text(row.requirement, 'importance') === 'high')
+    const supportedHigh = proofMatrixRows.filter((row) => !['weak', 'missing'].includes(row.proofQuality) && text(row.requirement, 'importance') === 'high')
+    const readiness = Math.max(0, Math.min(100, Math.round((num(selectedApplication, 'credibility_score') ?? averageProof) - highGaps.length * 8 + supportedHigh.length * 4)))
+    const nextBestMove = highGaps[0]
+      ? 'Close proof for: ' + text(highGaps[0].requirement, 'requirement_text')
+      : relatedSprints[0]
+        ? 'Finish sprint: ' + text(relatedSprints[0], 'gap_summary')
+        : 'Lead with strongest verified proof in outreach and interviews.'
+    return { averageProof, highGaps, supportedHigh, readiness, nextBestMove }
+  }, [proofMatrixRows, selectedApplication, relatedSprints])
+  const proofBackedAnswer = useMemo(() => {
+    const strongestEvidence = sortLatest(evidenceQuery.records)
+      .filter((item) => ['strong', 'medium'].includes(text(item, 'strength')))
+      .slice(0, 2)
+    if (!strongestEvidence.length) return ''
+    const story = strongestEvidence[0]
+    const result = text(story, 'story_result') || text(story, 'description')
+    const limitation = credibilitySignals.highGaps[0] ? 'I am currently strengthening proof around ' + (text(credibilitySignals.highGaps[0].requirement, 'skill') || text(credibilitySignals.highGaps[0].requirement, 'requirement_text')) + '.' : 'The proof is strongest when I stay specific about the artifact.'
+    return 'My strongest relevant proof is ' + text(story, 'title', 'a project') + '. ' + result + ' ' + limitation
+  }, [evidenceQuery.records, credibilitySignals])
 
   const fixFirstCount = applications.filter((row) => text(row, 'decision') === 'fix_first' || text(row, 'status') === 'fix_first').length
   const readyCount = applications.filter((row) => ['apply', 'ready_to_apply', 'applied', 'interview'].includes(text(row, 'decision')) || ['ready_to_apply', 'applied', 'interview'].includes(text(row, 'status'))).length
@@ -711,6 +777,20 @@ function App() {
     setInterviewResult(scoreInterviewAnswer(interviewAnswer, proofTerms, weakAreaTerms))
   }
 
+  function runClaimAudit() {
+    setSubmitError('')
+    setClaimAudit(auditClaim(claimDraft, proofTerms, weakAreaTerms))
+  }
+
+  function useProofBackedAnswer() {
+    if (!proofBackedAnswer) {
+      setSubmitError('Load demo data or run strategy before generating a proof-backed answer.')
+      return
+    }
+    setInterviewAnswer(proofBackedAnswer)
+    setInterviewResult(scoreInterviewAnswer(proofBackedAnswer, proofTerms, weakAreaTerms))
+  }
+
   async function seedDemoApplication() {
     setSubmitError('')
     setNotice('')
@@ -872,6 +952,7 @@ function App() {
           <a href="#dashboard"><Gauge size={17} />Dashboard</a>
           <a href="#profile"><UserRound size={17} />Profile</a>
           <a href="#analyze"><Sparkles size={17} />Analyze</a>
+          <a href="#ai-coach"><WandSparkles size={17} />AI coach</a>
           <a href="#requirements"><BarChart3 size={17} />Proof matrix</a>
           <a href="#proof"><ShieldCheck size={17} />Proof ledger</a>
           <a href="#interview"><MessageSquareText size={17} />Interview</a>
@@ -1113,6 +1194,66 @@ function App() {
           </div>
         </section>
 
+        <section className="outputs-grid ai-coach-grid" id="ai-coach">
+          <section className="panel ai-diagnosis-panel">
+            <SectionHeader icon={<WandSparkles size={18} />} title="AI credibility diagnosis" />
+            <div className="readiness-card">
+              <div className="score-orb compact-score">
+                <strong>{credibilitySignals.readiness}</strong>
+                <span>/100</span>
+              </div>
+              <div>
+                <h3>{roleReadinessLabel(credibilitySignals.readiness)}</h3>
+                <p>{credibilitySignals.nextBestMove}</p>
+              </div>
+            </div>
+            <div className="diagnosis-grid">
+              <div>
+                <span>Average proof</span>
+                <strong>{credibilitySignals.averageProof || '-'}</strong>
+              </div>
+              <div>
+                <span>Supported high-signal requirements</span>
+                <strong>{credibilitySignals.supportedHigh.length}</strong>
+              </div>
+              <div>
+                <span>High-signal proof gaps</span>
+                <strong>{credibilitySignals.highGaps.length}</strong>
+              </div>
+            </div>
+            {credibilitySignals.highGaps.length ? (
+              <div className="record-stack">
+                {credibilitySignals.highGaps.slice(0, 3).map((row) => (
+                  <article className="feedback-note" key={rowId(row.requirement) || text(row.requirement, 'requirement_text')}>
+                    <strong>{text(row.requirement, 'requirement_text')}</strong>
+                    <span>{row.nextAction}</span>
+                  </article>
+                ))}
+              </div>
+            ) : <EmptyState title="No high-signal proof gaps detected for the selected application." />}
+          </section>
+
+          <section className="panel claim-audit-panel">
+            <SectionHeader icon={<FileWarning size={18} />} title="Claim risk checker" />
+            <label>
+              Claim to audit
+              <textarea value={claimDraft} onChange={(event) => setClaimDraft(event.target.value)} placeholder="Paste a resume bullet or interview claim before using it." rows={5} />
+            </label>
+            <button className="primary-action" type="button" onClick={runClaimAudit}>
+              <ListChecks size={18} />
+              Audit claim
+            </button>
+            {claimAudit ? (
+              <div className="claim-result">
+                <Pill tone={claimAudit.tone}>{claimAudit.verdict}</Pill>
+                <div className="record-stack">
+                  {claimAudit.notes.map((note) => <p className="feedback-note" key={note}>{note}</p>)}
+                </div>
+              </div>
+            ) : <EmptyState title="This catches unsupported claims before they reach a resume or interview." />}
+          </section>
+        </section>
+
         <section className="panel" id="requirements">
           <SectionHeader
             icon={<BarChart3 size={18} />}
@@ -1278,10 +1419,16 @@ function App() {
               Your answer
               <textarea value={interviewAnswer} onChange={(event) => setInterviewAnswer(event.target.value)} placeholder="Answer with a concrete project, action, metric, and honest limitation." rows={7} />
             </label>
-            <button className="primary-action" type="button" onClick={runInterviewPractice} disabled={!interviewQuestions.length}>
-              <PlayCircle size={18} />
-              Score answer
-            </button>
+            <div className="button-row">
+              <button className="icon-button" type="button" onClick={useProofBackedAnswer} disabled={!proofBackedAnswer}>
+                <WandSparkles size={18} />
+                Use proof-backed draft
+              </button>
+              <button className="primary-action" type="button" onClick={runInterviewPractice} disabled={!interviewQuestions.length}>
+                <PlayCircle size={18} />
+                Score answer
+              </button>
+            </div>
           </section>
 
           <section className="panel simulator-result-panel">
